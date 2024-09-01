@@ -1,0 +1,123 @@
+<html>
+
+<head>
+	<title>Gify</title>
+	<style>
+		body {
+			padding: 0;
+			margin: 0;
+			background-color: violet;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+
+		h3 {
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+			margin-top: 30px;
+			border: 2px solid black;
+			padding: 15px;
+		}
+
+		.search {
+			height: 40px;
+			width: 100vw;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			padding: 20px;
+		}
+
+		.search input {
+			height: 100%;
+			width: 80vw;
+			padding: 20px;
+			border: 2px solid black;
+			font-weight: 500;
+		}
+
+		.search button {
+			height: 100%;
+			width: 60px;
+			border: 2px solid black;
+			margin-left: 10px;
+			font-weight: 500;
+		}
+
+		#gif-container {
+			border: 2px solid black;
+			width: 85vw;
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+
+		}
+
+		#gif-container img {
+			padding: 10px;
+			height: 220px;
+			width: 240px;
+		}
+	</style>
+</head>
+
+<body>
+	<h3>Kaushik's Gif Searcher</h3>
+	<div class="search">
+		<input type="text" id="search-query" placeholder="search here">
+		<button id="search-btn">Search</button>
+	</div>
+
+	<div id="gif-container" class="content">
+		<span>Click on them to Download</span>
+	</div>
+	<script>
+		const searchQueryInput = document.getElementById('search-query');
+		const searchBtn = document.getElementById('search-btn');
+		const gifContainer = document.getElementById('gif-container');
+
+		searchBtn.addEventListener('click', () => {
+			const searchQuery = searchQueryInput.value.trim();
+			if (searchQuery) {
+				const apiKey = 'AIzaSyBvJvQMMaNgsMJ2D3u4VOk86rADAzXwcmc';
+				const url = `https://tenor.googleapis.com/v2/search?key=${apiKey}&q=${searchQuery}&limit=20&random=true`;
+
+				fetch(url)
+					.then(response => response.json())
+					.then(data => {
+						const gifs = data.results;
+						gifContainer.innerHTML = '';
+						gifs.forEach(gif => {
+							const gifImg = document.createElement('img');
+							gifImg.src = gif.media_formats.tinygif.url; 
+							gifImg.style.cursor = 'pointer';
+							gifImg.addEventListener('click', (event) => downloadGif(event, gif.media_formats.gif.url, searchQuery));
+							gifContainer.appendChild(gifImg);
+						});
+					})
+					.catch(error => console.error('Error:', error));
+			}
+		});
+		
+		searchQueryInput.addEventListener('keypress', (event) => {
+			if (event.key === 'Enter') {
+				searchBtn.click();
+			}
+		});
+
+		function downloadGif(event, url, searchQuery) {
+			event.preventDefault(); // Prevents the default anchor behavior
+			const link = document.createElement('a');
+			link.href = url;
+			link.target = 'blank'
+			link.download = `${searchQuery}.gif`; // Sets the download attribute to save the file as a GIF
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+		}
+
+	</script>
+</body>
+
+</html>
